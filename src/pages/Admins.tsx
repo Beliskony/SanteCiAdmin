@@ -7,7 +7,7 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { CreateAdminModal } from '../components/admins/CreateAdminModal';
 import { EditPermissionsModal } from '../components/admins/EditPermissionsModal';
 import { ConfirmActionModal } from '../components/ui/ConfirmActionModal';
-import api, { ApiError } from '../lib/api';
+import api  from '../lib/api';
 import { ALL_PERMISSIONS } from '../types/IAdminAccount';
 import type { AdminAccountListItem } from '../types/IAdminAccount';
 
