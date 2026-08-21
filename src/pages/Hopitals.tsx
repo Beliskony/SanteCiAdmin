@@ -6,6 +6,7 @@ import { useHospitals } from '../hooks/useHospitals';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Pagination } from '../components/ui/Pagination';
 import { ConfirmActionModal } from '../components/ui/ConfirmActionModal';
+import { HospitalDetailModal } from '../components/modals/HospitalDetailModal';
 import api from '../lib/api';
 import { HOSPITAL_TYPE_LABELS } from '../types/IHopital';
 import type { HospitalStatusFilter } from '../types/IHopital';
@@ -17,7 +18,12 @@ const TABS: { value: HospitalStatusFilter; label: string }[] = [
   { value: 'blocked', label: 'Bloqués' },
 ];
 
+// TODO: remplacer par le vrai type exporté par types/IHopital si tu en as un
+// pour la ligne de liste (ex. HospitalListItem) — any en attendant.
+type HospitalRow = any;
+
 type ModalState =
+  | { type: 'detail'; hospital: HospitalRow }
   | { type: 'verify'; id: string; name: string }
   | { type: 'suspend'; id: string; name: string }
   | { type: 'block'; id: string; name: string }
@@ -34,7 +40,7 @@ export default function Hospitals() {
 
   const { data, isLoading, error, refetch } = useHospitals({ status, search, page });
 
-  function setStatus(newStatus: HospitalStatusFilter) {
+  function setStatusFilter(newStatus: HospitalStatusFilter) {
     setSearchParams(newStatus === 'all' ? {} : { status: newStatus });
     setPage(1);
   }
@@ -49,13 +55,22 @@ export default function Hospitals() {
     refetch();
   }
 
+  // Traduit une action choisie depuis le modal de détail en la modale de confirmation existante
+  function handleDetailAction(hospital: HospitalRow, action: 'verify' | 'suspend' | 'block' | 'reactivate') {
+    if (action === 'verify') {
+      setModal({ type: 'verify', id: hospital._id, name: hospital.name });
+    } else {
+      setModal({ type: action, id: hospital._id, name: hospital.name });
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex gap-1 overflow-x-auto rounded-lg border border-border bg-surface p-1">
         {TABS.map((tab) => (
           <button
             key={tab.value}
-            onClick={() => setStatus(tab.value)}
+            onClick={() => setStatusFilter(tab.value)}
             className={`shrink-0 rounded-md px-3.5 py-1.5 text-sm font-medium transition ${
               status === tab.value ? 'bg-accent-soft text-accent' : 'text-text-secondary hover:bg-surface-hover'
             }`}
@@ -103,7 +118,11 @@ export default function Hospitals() {
               </thead>
               <tbody>
                 {data.hospitals.map((h) => (
-                  <tr key={h._id} className="border-b border-border last:border-0 hover:bg-surface-hover">
+                  <tr
+                    key={h._id}
+                    onClick={() => setModal({ type: 'detail', hospital: h })}
+                    className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-hover"
+                  >
                     <td className="px-4 py-3">
                       <p className="font-medium text-text-primary">{h.name}</p>
                       <p className="text-xs text-text-muted">{h.contact.email}</p>
@@ -116,7 +135,7 @@ export default function Hospitals() {
                         {!h.metadata.verified && <span className="text-xs text-text-muted">non vérifié</span>}
                       </div>
                     </td>
-                    <td className="relative px-4 py-3 text-right">
+                    <td className="relative px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => setOpenMenuId(openMenuId === h._id ? null : h._id)}
                         className="rounded-lg p-1.5 text-text-muted transition hover:bg-surface-hover hover:text-text-secondary"
@@ -173,6 +192,13 @@ export default function Hospitals() {
         )}
       </div>
 
+      {modal?.type === 'detail' && (
+        <HospitalDetailModal
+          hospital={modal.hospital}
+          onAction={(action) => handleDetailAction(modal.hospital, action)}
+          onClose={() => setModal(null)}
+        />
+      )}
       {modal?.type === 'verify' && (
         <ConfirmActionModal
           title="Vérifier cet établissement"

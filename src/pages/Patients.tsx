@@ -6,6 +6,7 @@ import { usePatients } from '../hooks/usePatients';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Pagination } from '../components/ui/Pagination';
 import { ConfirmActionModal } from '../components/ui/ConfirmActionModal';
+import { PatientDetailModal } from '../components/modals/PatientDetailModal';
 import api from '../lib/api';
 import type { PatientStatusFilter } from '../types/IPatient';
 
@@ -16,7 +17,12 @@ const TABS: { value: PatientStatusFilter; label: string }[] = [
   { value: 'blocked', label: 'Bloqués' },
 ];
 
+// TODO: remplacer par le vrai type exporté par types/IPatient si tu en as un
+// pour la ligne de liste (ex. PatientListItem) — any en attendant.
+type PatientRow = any;
+
 type ModalState =
+  | { type: 'detail'; patient: PatientRow }
   | { type: 'suspend'; id: string; name: string }
   | { type: 'block'; id: string; name: string }
   | { type: 'reactivate'; id: string; name: string }
@@ -32,7 +38,7 @@ export default function Patients() {
 
   const { data, isLoading, error, refetch } = usePatients({ status, search, page });
 
-  function setStatus(newStatus: PatientStatusFilter) {
+  function setStatusFilter(newStatus: PatientStatusFilter) {
     setSearchParams(newStatus === 'all' ? {} : { status: newStatus });
     setPage(1);
   }
@@ -42,13 +48,18 @@ export default function Patients() {
     refetch();
   }
 
+  function handleDetailAction(patient: PatientRow, action: 'suspend' | 'block' | 'reactivate') {
+    const fullName = `${patient.profile.firstName} ${patient.profile.lastName}`;
+    setModal({ type: action, id: patient._id, name: fullName });
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex gap-1 overflow-x-auto rounded-lg border border-border bg-surface p-1">
         {TABS.map((tab) => (
           <button
             key={tab.value}
-            onClick={() => setStatus(tab.value)}
+            onClick={() => setStatusFilter(tab.value)}
             className={`shrink-0 rounded-md px-3.5 py-1.5 text-sm font-medium transition ${
               status === tab.value ? 'bg-accent-soft text-accent' : 'text-text-secondary hover:bg-surface-hover'
             }`}
@@ -98,7 +109,11 @@ export default function Patients() {
                 {data.patients.map((p) => {
                   const fullName = `${p.profile.firstName} ${p.profile.lastName}`;
                   return (
-                    <tr key={p._id} className="border-b border-border last:border-0 hover:bg-surface-hover">
+                    <tr
+                      key={p._id}
+                      onClick={() => setModal({ type: 'detail', patient: p })}
+                      className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-hover"
+                    >
                       <td className="px-4 py-3">
                         <p className="font-medium text-text-primary">{fullName}</p>
                         <p className="text-xs text-text-muted">{p.location.city}</p>
@@ -111,7 +126,7 @@ export default function Patients() {
                       <td className="px-4 py-3">
                         <StatusBadge status={p.status.accountStatus} />
                       </td>
-                      <td className="relative px-4 py-3 text-right">
+                      <td className="relative px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => setOpenMenuId(openMenuId === p._id ? null : p._id)}
                           className="rounded-lg p-1.5 text-text-muted transition hover:bg-surface-hover hover:text-text-secondary"
@@ -161,6 +176,13 @@ export default function Patients() {
         )}
       </div>
 
+      {modal?.type === 'detail' && (
+        <PatientDetailModal
+          patient={modal.patient}
+          onAction={(action) => handleDetailAction(modal.patient, action)}
+          onClose={() => setModal(null)}
+        />
+      )}
       {modal?.type === 'suspend' && (
         <ConfirmActionModal
           title="Suspendre ce patient"

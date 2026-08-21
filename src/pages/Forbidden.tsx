@@ -8,7 +8,7 @@ export default function Forbidden() {
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-danger-soft text-danger">
         <Lock size={24} />
       </div>
-      <h1 className="text-lg font-bold text-text-primary">Accès refusé</h1>
+      <h1 className="text-lg font-semibold text-text-primary">Accès refusé</h1>
       <p className="mt-1.5 max-w-sm text-sm text-text-secondary">
         Vous n'avez pas la permission nécessaire pour accéder à cette section. Contactez un superadmin si vous pensez qu'il s'agit d'une erreur.
       </p>

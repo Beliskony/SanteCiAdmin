@@ -39,24 +39,24 @@ export function EditPermissionsModal({ admin, onUpdated, onClose }: EditPermissi
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/60 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-lg motion-safe:animate-[modal-in_0.15s_ease-out]">
         <div className="mb-4 flex items-start justify-between">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent">
             <Settings2 size={18} />
           </div>
-          <button onClick={onClose} className="text-text-muted transition hover:text-text-secondary">
+          <button onClick={onClose} aria-label="Fermer" className="text-text-muted transition hover:text-text-secondary">
             <X size={18} />
           </button>
         </div>
 
-        <h2 className="text-base font-bold text-text-primary">Permissions de {admin.profile.fullName}</h2>
+        <h2 className="text-base font-semibold text-text-primary">Permissions de {admin.profile.fullName}</h2>
 
-        <div className="mt-4 space-y-1.5 rounded-lg border border-border p-2">
+        <div className="mt-4 space-y-1 rounded-lg border border-border p-2">
           {ALL_PERMISSIONS.map((perm) => (
             <label
               key={perm.value}
-              className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-text-primary hover:bg-surface-hover"
+              className="flex cursor-pointer items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-text-primary transition hover:bg-surface-hover"
             >
               <input
                 type="checkbox"
@@ -85,7 +85,7 @@ export function EditPermissionsModal({ admin, onUpdated, onClose }: EditPermissi
           <button
             onClick={handleSave}
             disabled={isSubmitting}
-            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
             Enregistrer

@@ -11,6 +11,7 @@ import {
   RefreshCw,
   AlertTriangle,
 } from 'lucide-react';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDashboardStats } from '../hooks/useDashboardStats';
 import { StatCard } from '../components/ui/StatCard';
 
@@ -21,12 +22,32 @@ const SUBSCRIPTION_LABELS: Record<string, string> = {
   vip: 'VIP',
 };
 
+// Palette dérivée des tokens existants — pas de nouvelle couleur inventée
+// pour le chart, juste les nuances déjà en place dans le design system.
+const SUBSCRIPTION_COLORS: Record<string, string> = {
+  free: 'var(--color-text-muted)',
+  premium: 'var(--color-accent)',
+  elite: 'var(--color-warning)',
+  vip: 'var(--color-accent-hover)',
+};
+
 function formatXOF(amount: number): string {
   return new Intl.NumberFormat('fr-CI', {
     style: 'currency',
     currency: 'XOF',
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+function SubscriptionTooltip({ active, payload }: any) {
+  if (!active || !payload?.length) return null;
+  const entry = payload[0];
+  return (
+    <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs shadow-lg">
+      <p className="font-medium text-text-primary">{SUBSCRIPTION_LABELS[entry.name] ?? entry.name}</p>
+      <p className="text-text-secondary">{entry.value} médecin{entry.value > 1 ? 's' : ''}</p>
+    </div>
+  );
 }
 
 export default function Overview() {
@@ -47,7 +68,7 @@ export default function Overview() {
             <div key={i} className="h-28 animate-pulse rounded-xl border border-border bg-surface" />
           ))}
         </div>
-        <div className="h-40 animate-pulse rounded-xl border border-border bg-surface" />
+        <div className="h-56 animate-pulse rounded-xl border border-border bg-surface" />
       </div>
     );
   }
@@ -152,28 +173,47 @@ export default function Overview() {
           {stats.subscriptions.length === 0 ? (
             <p className="text-sm text-text-muted">Aucune donnée pour l'instant.</p>
           ) : (
-            <div className="space-y-4">
-              {stats.subscriptions.map((sub) => {
-                const percent = totalSubscriptions > 0 ? Math.round((sub.count / totalSubscriptions) * 100) : 0;
-                return (
-                  <div key={sub._id}>
-                    <div className="mb-1.5 flex items-center justify-between text-sm">
-                      <span className="font-medium text-text-primary">
+            <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center">
+              <div className="h-44 w-44 shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={stats.subscriptions}
+                      dataKey="count"
+                      nameKey="_id"
+                      innerRadius="65%"
+                      outerRadius="100%"
+                      paddingAngle={2}
+                      stroke="none"
+                    >
+                      {stats.subscriptions.map((sub) => (
+                        <Cell key={sub._id} fill={SUBSCRIPTION_COLORS[sub._id] ?? 'var(--color-text-muted)'} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<SubscriptionTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="w-full flex-1 space-y-3">
+                {stats.subscriptions.map((sub) => {
+                  const percent = totalSubscriptions > 0 ? Math.round((sub.count / totalSubscriptions) * 100) : 0;
+                  return (
+                    <div key={sub._id} className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 font-medium text-text-primary">
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
+                          style={{ backgroundColor: SUBSCRIPTION_COLORS[sub._id] ?? 'var(--color-text-muted)' }}
+                        />
                         {SUBSCRIPTION_LABELS[sub._id] ?? sub._id}
                       </span>
                       <span className="text-text-secondary">
                         {sub.count} <span className="text-text-muted">({percent}%)</span>
                       </span>
                     </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-bg">
-                      <div
-                        className="h-full rounded-full bg-accent transition-all duration-500"
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

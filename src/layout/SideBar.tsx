@@ -38,7 +38,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const navLinkClass = ({ isActive }: NavLinkRenderProps) =>
   `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-    isActive ? 'bg-accent-soft text-accent' : 'text-text-secondary hover:bg-surface-hover'
+    isActive ? 'bg-accent/12 text-accent' : 'text-rail-muted hover:bg-white/5 hover:text-rail-text'
   }`;
 
 export function Sidebar() {
@@ -51,15 +51,16 @@ export function Sidebar() {
   });
 
   return (
-    <aside className="flex h-screen w-64 flex-col border-r border-border bg-surface">
-      <div className="flex items-center gap-2 border-b border-border px-5 py-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-white">
-          <Stethoscope size={18} />
-        </div>
-        <span className="text-base font-bold text-text-primary">E-SantéCI</span>
+    <aside className="flex h-screen w-64 flex-col bg-rail-bg">
+      <div className="flex items-center gap-2.5 px-5 py-6">
+        <span className="h-2 w-2 rounded-full bg-accent" />
+        <span className="text-base font-semibold tracking-tight text-rail-text">E-SantéCI</span>
+        <span className="rounded-full border border-rail-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-rail-muted">
+          Admin
+        </span>
       </div>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
         {visibleItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -71,14 +72,14 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="border-t border-border p-3">
+      <div className="p-3">
         <div className="mb-2 flex items-center gap-2.5 rounded-lg px-2 py-1.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-hover text-xs font-semibold text-text-secondary">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-rail-text">
             {admin?.profile.fullName?.slice(0, 2).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-text-primary">{admin?.profile.fullName}</p>
-            <p className="truncate text-xs text-text-muted">
+            <p className="truncate text-sm font-medium text-rail-text">{admin?.profile.fullName}</p>
+            <p className="truncate text-xs text-rail-muted">
               {admin?.role === 'superadmin' ? 'Superadmin' : 'Admin'}
             </p>
           </div>
@@ -91,7 +92,7 @@ export function Sidebar() {
 
         <button
           onClick={logout}
-          className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-danger transition hover:bg-danger-soft"
+          className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-danger transition hover:bg-danger/10"
         >
           <LogOut size={16} />
           Déconnexion

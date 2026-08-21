@@ -1,4 +1,3 @@
-// src/components/ui/ConfirmActionModal.tsx
 import { useState } from 'react';
 import { X, Loader2, TriangleAlert } from 'lucide-react';
 
@@ -42,18 +41,26 @@ export function ConfirmActionModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-bg/60 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-6 shadow-lg motion-safe:animate-[modal-in_0.15s_ease-out]">
         <div className="mb-4 flex items-start justify-between">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${danger ? 'bg-danger-soft text-danger' : 'bg-accent-soft text-accent'}`}>
+          <div
+            className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+              danger ? 'bg-danger-soft text-danger' : 'bg-accent-soft text-accent'
+            }`}
+          >
             <TriangleAlert size={18} />
           </div>
-          <button onClick={onClose} className="text-text-muted transition hover:text-text-secondary">
+          <button
+            onClick={onClose}
+            aria-label="Fermer"
+            className="text-text-muted transition hover:text-text-secondary"
+          >
             <X size={18} />
           </button>
         </div>
 
-        <h2 className="text-base font-bold text-text-primary">{title}</h2>
+        <h2 className="text-base font-semibold text-text-primary">{title}</h2>
         <p className="mt-1.5 text-sm text-text-secondary">{description}</p>
 
         {requireReason && (

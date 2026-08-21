@@ -33,7 +33,7 @@ export function Header() {
 
   return (
     <header className="flex items-center justify-between border-b border-border bg-surface px-8 py-4">
-      <h1 className="text-lg font-bold text-text-primary">{title}</h1>
+      <h1 className="text-lg font-semibold tracking-tight text-text-primary">{title}</h1>
       <ThemeToggle />
     </header>
   );

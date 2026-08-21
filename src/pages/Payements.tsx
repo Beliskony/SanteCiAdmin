@@ -4,6 +4,7 @@ import { AlertTriangle, Wallet, Smartphone, CreditCard, ShieldQuestion } from 'l
 import { usePayments } from '../hooks/usePayments';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Pagination } from '../components/ui/Pagination';
+import { PaymentDetailModal } from '../components/modals/PayementDetailModal';
 import { PAYMENT_METHOD_LABELS, PROVIDER_LABELS } from '../types/IPayment';
 import type { PaymentStatusFilter } from '../types/IPayment';
 
@@ -22,6 +23,10 @@ const METHOD_ICONS: Record<string, typeof Wallet> = {
   Assurance: ShieldQuestion,
 };
 
+// TODO: remplacer par le vrai type exporté par types/IPayment si tu en as un
+// pour la ligne de liste (ex. PaymentListItem) — any en attendant.
+type PaymentRow = any;
+
 function formatXOF(amount: number, currency: string): string {
   return new Intl.NumberFormat('fr-CI', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
 }
@@ -34,6 +39,7 @@ function formatDate(dateStr?: string): string {
 export default function Payments() {
   const [status, setStatus] = useState<PaymentStatusFilter>('all');
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<PaymentRow | null>(null);
 
   const { data, isLoading, error } = usePayments({ status, page });
 
@@ -78,14 +84,17 @@ export default function Payments() {
                   <th className="px-4 py-3 font-medium">Méthode</th>
                   <th className="px-4 py-3 font-medium">Date</th>
                   <th className="px-4 py-3 font-medium">Statut</th>
-                  <th className="px-4 py-3 font-medium"></th>
                 </tr>
               </thead>
               <tbody>
                 {data.payments.map((p) => {
                   const MethodIcon = METHOD_ICONS[p.payment.method] ?? Wallet;
                   return (
-                    <tr key={p._id} className="border-b border-border last:border-0 hover:bg-surface-hover">
+                    <tr
+                      key={p._id}
+                      onClick={() => setSelected(p)}
+                      className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-hover"
+                    >
                       <td className="px-4 py-3 text-text-primary">
                         {p.patientId ? `${p.patientId.profile.firstName} ${p.patientId.profile.lastName}` : '—'}
                       </td>
@@ -107,17 +116,6 @@ export default function Payments() {
                       <td className="px-4 py-3">
                         <StatusBadge status={p.status.paymentStatus} />
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        {p.status.paymentStatus === 'paid' && (
-                          <button
-                            disabled
-                            title="Fonctionnalité de remboursement pas encore disponible côté backend"
-                            className="cursor-not-allowed rounded-lg border border-border px-2.5 py-1 text-xs font-medium text-text-muted opacity-60"
-                          >
-                            Rembourser
-                          </button>
-                        )}
-                      </td>
                     </tr>
                   );
                 })}
@@ -127,6 +125,8 @@ export default function Payments() {
           </>
         )}
       </div>
+
+      {selected && <PaymentDetailModal payment={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
