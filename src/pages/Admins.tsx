@@ -1,4 +1,3 @@
-// src/pages/Admins.tsx
 import { useState } from 'react';
 import { Plus, Settings2, Ban, RotateCcw, ShieldAlert, Crown, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
