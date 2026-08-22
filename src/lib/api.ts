@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
+//const BASE_URL = import.meta.env.VITE_API_BASE_URL_PROD as string;
+const BASE_URL_DEV = "https://sante-ci-xi.vercel.app/api"
 
 export class ApiError extends Error {
   status: number;
@@ -26,7 +27,7 @@ async function refreshTokens(): Promise<void> {
 
   let res: Response;
   try {
-    res = await fetch(`${BASE_URL}/admin/refresh`, {
+    res = await fetch(`${BASE_URL_DEV}/admin/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
@@ -57,7 +58,7 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   const token = localStorage.getItem('admin_access_token');
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetch(`${BASE_URL_DEV}${path}`, {
     ...rest,
     headers: {
       'Content-Type': 'application/json',
