@@ -1,5 +1,3 @@
-// src/lib/api.ts
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
 export class ApiError extends Error {
@@ -26,13 +24,20 @@ async function refreshTokens(): Promise<void> {
   const refreshToken = localStorage.getItem('admin_refresh_token');
   if (!refreshToken) throw new ApiError('Session expirée.', 401);
 
-  const res = await fetch(`${BASE_URL}/admin/refresh`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}/admin/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch {
+    // Serveur injoignable / réseau coupé : on ne sait pas si la session est invalide,
+    // donc on NE LA détruit PAS. status 0 = erreur transitoire, pas un rejet explicite.
+    throw new ApiError('Impossible de contacter le serveur.', 0);
+  }
 
-  if (!res.ok) throw new ApiError('Session expirée.', 401);
+  if (!res.ok) throw new ApiError('Session expirée.', res.status);
 
   const json = await res.json();
   localStorage.setItem('admin_access_token', json.data.accessToken);
@@ -76,10 +81,17 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       refreshQueue.forEach((resolve) => resolve());
       refreshQueue = [];
       return request<T>(path, { ...options, isRetry: true });
-    } catch {
+    } catch (err) {
       refreshQueue = [];
-      clearSessionAndRedirect();
-      throw new ApiError('Session expirée.', 401);
+
+      // status 0 = le refresh a échoué à cause d'un problème réseau/serveur, pas parce
+      // que le serveur a explicitement rejeté le refresh token. Dans ce cas on garde
+      // la session intacte : l'utilisateur pourra réessayer sans se reconnecter.
+      const isTransientFailure = err instanceof ApiError && err.status === 0;
+      if (!isTransientFailure) {
+        clearSessionAndRedirect();
+      }
+      throw err;
     } finally {
       isRefreshing = false;
     }

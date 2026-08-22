@@ -117,75 +117,75 @@ export default function Hospitals() {
                 </tr>
               </thead>
               <tbody>
-                {data.hospitals.map((h) => (
-                  <tr
-                    key={h._id}
-                    onClick={() => setModal({ type: 'detail', hospital: h })}
-                    className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-hover"
-                  >
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-text-primary">{h.name}</p>
-                      <p className="text-xs text-text-muted">{h.contact.email}</p>
-                    </td>
-                    <td className="px-4 py-3 text-text-secondary">{HOSPITAL_TYPE_LABELS[h.type]}</td>
-                    <td className="px-4 py-3 text-text-secondary">{h.location.city}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <StatusBadge status={h.status.accountStatus} />
-                        {!h.metadata.verified && <span className="text-xs text-text-muted">non vérifié</span>}
-                      </div>
-                    </td>
-                    <td className="relative px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => setOpenMenuId(openMenuId === h._id ? null : h._id)}
-                        className="rounded-lg p-1.5 text-text-muted transition hover:bg-surface-hover hover:text-text-secondary"
-                      >
-                        <MoreVertical size={16} />
-                      </button>
+  {data.hospitals.map((h) => (
+    <tr
+      key={h._id}
+      onClick={() => setModal({ type: 'detail', hospital: h })}
+      className="cursor-pointer border-b border-border last:border-0 hover:bg-surface-hover"
+    >
+      <td className="px-4 py-3">
+        <p className="font-medium text-text-primary">{h.name}</p>
+        <p className="text-xs text-text-muted">{h.contact?.email || 'Email non disponible'}</p>
+      </td>
+      <td className="px-4 py-3 text-text-secondary">{HOSPITAL_TYPE_LABELS[h.type]}</td>
+      <td className="px-4 py-3 text-text-secondary">{h.location?.city || 'Ville inconnue'}</td>
+      <td className="px-4 py-3">
+        <div className="flex items-center gap-1.5">
+          <StatusBadge status={h.status?.accountStatus || 'active'} />
+          {!h.metadata?.verified && <span className="text-xs text-text-muted">non vérifié</span>}
+        </div>
+      </td>
+      <td className="relative px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={() => setOpenMenuId(openMenuId === h._id ? null : h._id)}
+          className="rounded-lg p-1.5 text-text-muted transition hover:bg-surface-hover hover:text-text-secondary"
+        >
+          <MoreVertical size={16} />
+        </button>
 
-                      {openMenuId === h._id && (
-                        <div
-                          onMouseLeave={() => setOpenMenuId(null)}
-                          className="absolute right-4 top-10 z-10 w-44 rounded-lg border border-border bg-surface py-1 shadow-lg"
-                        >
-                          {!h.metadata.verified && (
-                            <button
-                              onClick={() => { setModal({ type: 'verify', id: h._id, name: h.name }); setOpenMenuId(null); }}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-hover"
-                            >
-                              <ShieldCheck size={15} className="text-success" /> Vérifier
-                            </button>
-                          )}
-                          {h.status.accountStatus !== 'suspended' && (
-                            <button
-                              onClick={() => { setModal({ type: 'suspend', id: h._id, name: h.name }); setOpenMenuId(null); }}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-hover"
-                            >
-                              <Ban size={15} className="text-warning" /> Suspendre
-                            </button>
-                          )}
-                          {h.status.accountStatus !== 'blocked' && (
-                            <button
-                              onClick={() => { setModal({ type: 'block', id: h._id, name: h.name }); setOpenMenuId(null); }}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft"
-                            >
-                              <Ban size={15} /> Bloquer
-                            </button>
-                          )}
-                          {h.status.accountStatus !== 'active' && (
-                            <button
-                              onClick={() => { setModal({ type: 'reactivate', id: h._id, name: h.name }); setOpenMenuId(null); }}
-                              className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-success hover:bg-success-soft"
-                            >
-                              <RotateCcw size={15} /> Réactiver
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+        {openMenuId === h._id && (
+          <div
+            onMouseLeave={() => setOpenMenuId(null)}
+            className="absolute right-4 top-10 z-10 w-44 rounded-lg border border-border bg-surface py-1 shadow-lg"
+          >
+            {!h.metadata?.verified && (
+              <button
+                onClick={() => { setModal({ type: 'verify', id: h._id, name: h.name }); setOpenMenuId(null); }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-hover"
+              >
+                <ShieldCheck size={15} className="text-success" /> Vérifier
+              </button>
+            )}
+            {h.status?.accountStatus !== 'suspended' && (
+              <button
+                onClick={() => { setModal({ type: 'suspend', id: h._id, name: h.name }); setOpenMenuId(null); }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-hover"
+              >
+                <Ban size={15} className="text-warning" /> Suspendre
+              </button>
+            )}
+            {h.status?.accountStatus !== 'blocked' && (
+              <button
+                onClick={() => { setModal({ type: 'block', id: h._id, name: h.name }); setOpenMenuId(null); }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft"
+              >
+                <Ban size={15} /> Bloquer
+              </button>
+            )}
+            {h.status?.accountStatus !== 'active' && (
+              <button
+                onClick={() => { setModal({ type: 'reactivate', id: h._id, name: h.name }); setOpenMenuId(null); }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-success hover:bg-success-soft"
+              >
+                <RotateCcw size={15} /> Réactiver
+              </button>
+            )}
+          </div>
+        )}
+      </td>
+    </tr>
+  ))}
+</tbody>
             </table>
             <Pagination page={data.page} pages={data.pages} total={data.total} onPageChange={setPage} />
           </>

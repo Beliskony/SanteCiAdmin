@@ -84,7 +84,9 @@ export default function Settings() {
           </div>
           <div>
             <dt className="text-text-muted">Membre depuis</dt>
-            <dd className="mt-0.5 font-medium text-text-primary">{formatDate(admin.metadata.createdAt)}</dd>
+              <dd className="mt-0.5 font-medium text-text-primary">
+                {admin.metadata?.createdAt ? formatDate(admin.metadata.createdAt) : '—'}
+              </dd>
           </div>
           <div>
             <dt className="text-text-muted">Statut</dt>

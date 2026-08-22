@@ -1,7 +1,7 @@
 // src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import api from '../lib/api';
+import api, { ApiError } from '../lib/api';
 import type { AdminUser, AdminPermission } from '../types/IAdmin';
 
 interface AuthContextValue {
@@ -27,9 +27,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     api.get<{ data: AdminUser }>('/admin/me')
       .then((res) => setAdmin(res.data))
-      .catch(() => {
-        localStorage.removeItem('admin_access_token');
-        localStorage.removeItem('admin_refresh_token');
+      .catch((err) => {
+        // On ne détruit la session que si le serveur l'a explicitement rejetée
+        // (401/403 depuis /admin/me, ou refresh token invalide côté api.ts).
+        // Une erreur réseau/serveur passagère (status 0) ne doit pas déconnecter
+        // quelqu'un dont les tokens sont peut-être encore parfaitement valides.
+        const isConfirmedInvalid = err instanceof ApiError && err.status !== 0;
+        if (isConfirmedInvalid) {
+          localStorage.removeItem('admin_access_token');
+          localStorage.removeItem('admin_refresh_token');
+        }
       })
       .finally(() => setIsLoading(false));
   }, []);

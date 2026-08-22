@@ -11,6 +11,10 @@ import Admins from './pages/Admins';
 import Reviews from './pages/Reviews';
 import Patients from './pages/Patients';
 import Hospitals from './pages/Hopitals';
+import Doctors from './pages/Doctors';
+import Payments from './pages/Payements';
+import Subscriptions from './pages/Subscriptions';
+import Settings from './pages/Setting';
 
 export default function App() {
   return (
@@ -31,10 +35,10 @@ export default function App() {
               }
             >
               {/* ✅ TOUTES les routes enfants doivent être ICI, entre les balises du parent */}
-              
+
               {/* Page d'accueil du dashboard */}
               <Route index element={<Overview />} />
-              
+
               {/* Admins (superadmin uniquement) */}
               <Route
                 path="admins"
@@ -44,7 +48,17 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              
+
+              {/* Doctors */}
+              <Route
+                path="doctors"
+                element={
+                  <ProtectedRoute requiredPermission="moderate:doctors">
+                    <Doctors />
+                  </ProtectedRoute>
+                }
+              />
+
               {/* Hospitals */}
               <Route
                 path="hospitals"
@@ -54,7 +68,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              
+
               {/* Patients */}
               <Route
                 path="patients"
@@ -64,7 +78,7 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              
+
               {/* Reviews */}
               <Route
                 path="reviews"
@@ -74,9 +88,36 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              
+
+              {/* Payments */}
+              <Route
+                path="payments"
+                element={
+                  <ProtectedRoute requiredPermission="manage:payments">
+                    <Payments />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Subscriptions */}
+              <Route
+                path="subscriptions"
+                element={
+                  <ProtectedRoute requiredPermission="manage:subscriptions">
+                    <Subscriptions />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Settings — accessible à tout admin connecté, pas de permission dédiée */}
+              <Route path="settings" element={<Settings />} />
+
               {/* Page Forbidden */}
               <Route path="forbidden" element={<Forbidden />} />
+
+              {/* Toute sous-route de /dashboard non reconnue retombe ici plutôt
+                  que de sortir de la branche et d'atterrir sur le wildcard global */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
 
             {/* Redirection pour toutes les autres URLs */}
